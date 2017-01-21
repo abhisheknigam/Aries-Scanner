@@ -11,29 +11,46 @@
  var res = "";
  var familyid = "";
  var url ="http://10.136.34.148:8042";
- 
+ var flashStep = 1;
+
  function scan(str){
     cordova.plugins.barcodeScanner.scan(function(result){
         res = result;
-        if(str == "true"){
-            addToServer(res,str);
+        if(res.cancelled==0){
+            if(str == "true"){
+                addToServer(res,str);
+            }
+            if(str == "false"){
+                removeFromServer(res,str);
+            }
+            flashFunction();
+            scan(str);
         }
-        if(str == "false"){
-            removeFromServer(res,str);
-        }
-        scan(str);
+        
     },function(error){
-        alert("error scanning barcode..Please try again");
+        
         scan(str);
     });
  }
 
- function green(str) {
-    $("#green").show();
+ function flashGreen() {
+     if(flashStep==1) {
+        document.bgColor="green";
+        flashStep=2; 
+     }
+     else {
+        document.bgColor="FFFFFF";
+        flashStep=1;
+     }
+}
+
+
+ function flashFunction() {
+    var task = window.setInterval(flashGreen,100);
     setTimeout(function(){
-        $("#green").hide();
-        scan(str);
-    },1000);
+        clearInterval(task);
+        //scan(str);
+    },5000);
 
 }
 
@@ -45,15 +62,27 @@ function red(str) {
     },1000);
 }
 
+function generateData(res,str) {
+    var result = res;
+    data = {
+        itemList: [
+          {
+              barcode: result.text
+          }
+        ]
+    }
+    return data;
+}
+
+
 function addToServer(res,str){
     var data = generateData(res,str);
-    alert(JSON.stringify(data));
-         $.ajax({
+    $.ajax({
          type: "POST",
          url: url + "/family/" + familyid + "/addToFridge",
-         data: JSON.stringify(data),
+         data: data,
          crossDomain: true,
-         contentType: "json",
+         dataType: "json",
          success: function (result) {
          },
          error: function(xhr,status,error){
@@ -64,12 +93,12 @@ function addToServer(res,str){
 
 function removeFromServer(res,str){
     var data = generateData(res,str);
-         $.ajax({
+    $.ajax({
          type: "POST",
          url: url + "/family/" + familyid + "/addToGarbage",
-         data: JSON.stringify(data),
+         data: data,
          crossDomain: true,
-         contentType: "json",
+         dataType: "json",
          success: function (result) {
          },
          error: function(xhr,status,error){
@@ -97,17 +126,6 @@ function signInToServer(name){
      });
 }
 
-function generateData(res,str) {
-    var result = res;
-    alert(JSON.stringify(result));
-     data = {
-        "itemList": [
-          {
-              "barcode": result.text
-          }
-        ]
-    }
-}
 
  </script>
 </head>
@@ -118,9 +136,9 @@ function generateData(res,str) {
  <button onclick="scan('true')">ADD </button>
   <button onclick="scan('false')">REMOVE </button>
 </div>
-<div id = "green" style="min-height:100%; min-width:100%; background-color:green; display:none; width:100%;height:100%; content:'' ; position:absolute">
+<div id = "white" style="min-height:100%; min-width:100%; background-color:green; display:none; width:100%;height:100%; content:'' ; position:absolute">
 </div>
-<div id = "red" style="min-height:100px; min-width:100px; background-color:red; display:none; width:100%;height:100%; content:'' ;position:absolute">
+<div id = "red" style="min-height:100%; min-width:100px; background-color:red; display:none; width:100%;height:100%; content:'' ;position:absolute">
 </div> 
 </body>
 </html>
