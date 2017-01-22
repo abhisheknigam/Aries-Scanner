@@ -6,11 +6,13 @@
  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
  <script type="text/javascript" src="cordova.js"></script>
+ <link rel="stylesheet" type="text/css" href="css/index.css"/>
  <script type="text/javascript">
  
  var res = "";
  var familyid = "";
- var url ="http://10.136.34.148:8042";
+ //var url ="http://10.136.34.148:8042";
+ var url = "http://45.79.223.108:8042";
  var flashStep = 1;
 
  function scan(str){
@@ -108,29 +110,134 @@ function removeFromServer(res,str){
 }
 
 
+$(document).ready(function(){
+    if(familyid!=""){
+        $("#appPage").show();
+        $("#login").hide();
+    }    
+});
 function signInToServer(name){
-         name = '{"familyname" : "myFamily1"}';
-         $.ajax({
-         type: "POST",
-         url: url + "/login",
-         data: JSON.stringify(name),
-         crossDomain: false,
-         contentType: "json",
-         success: function (result) {
-             familyid = result[0]._id; 
-         },
-         error: function(xhr,status,error){
-             console.log(error);
-         },
-         dataType: "json"
-     });
+     fname = {familyName : name};
+     $.ajax({
+     type: "POST",
+     url: url + "/login",
+     data: JSON.stringify(fname),
+     crossDomain: false,
+     contentType: "application/json",
+     success: function (result) {
+        $("#main").show();
+        $("#login").hide();
+        console.log(result);
+         familyid = result[0]._id; 
+         refreshFeed();
+     },
+     error: function(xhr,status,error){
+        console.log(xhr);
+        console.log(status);
+        console.log(error);
+        alert("Login Failed. Please try again");
+     },
+     dataType: "json"
+  });
 }
 
 
  </script>
-</head>
-<body onload="signInToServer('myFamily')">
-<div id ="main" style= "display:show">
+<style type="text/css">
+
+        /* ---------- LOGIN ---------- */
+        #login {
+        margin: 50px auto;
+        width: 300px;
+
+
+        }
+        h1{
+          font-size: 30px;
+          color: #fff;
+          /*text-transform: uppercase;*/
+          font-weight: 300;
+          text-align: center;
+          margin-bottom: 15px;
+        }
+
+
+        fieldset input[type="text"], input[type="password"] {
+        background-color: #e5e5e5;
+        border: none;
+        border-radius: 3px;
+        -moz-border-radius: 3px;
+        -webkit-border-radius: 3px;
+        color: #5a5656;
+        font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        height: 50px;
+        outline: none;
+        padding: 0px 10px;
+        width: 280px;
+        -webkit-appearance:none;
+        }
+
+        .custom-button{
+            display: inline-table;
+          height:3%
+          width:6%
+          background: #00b7ea;
+          
+          /*TYPE*/
+          color: white;
+          font: 17px/50px Helvetica, Verdana, sans-serif;
+          text-decoration: none;
+          text-align: center;
+          text-transform: uppercase;
+
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+                border-radius: 10px;
+            -webkit-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            -moz-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+                box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            background: -moz-linear-gradient(top, #00b7ea 0%, #009ec3 100%); /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#00b7ea), color-stop(100%,#009ec3)); /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Opera 11.10+ */
+            background: -ms-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* IE10+ */
+            background: linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00b7ea', endColorstr='#009ec3',GradientType=0 ); /* IE6-9 */
+        }
+
+
+        </style>
+
+    </head>
+
+      <body>
+         
+            <script>
+
+                
+
+                var validate = function(){
+                    console.log("in validate");
+                    console.log(document.getElementById("family").value);
+                    if(document.getElementById("family").value!=null && document.getElementById("family").value!=''){
+                        console.log("in validate");
+                        signInToServer(document.getElementById("family").value);
+                    }
+                }
+
+
+                </script>
+                <div id="login" align="center" style="padding-top: 200px;" >
+                    <h1 style="color:white" align="center" style="padding-bottom: 80px;"><strong> Welcome ! Please login.</strong></h1>
+                        <fieldset>
+                        <p align="center"><input id="family" type="text" required align="center" placeholder="                     Family Name" onBlur="if(this.value=='')this.value='                     Family Name'" onFocus="if(this.value=='                     Family Name')this.value='' "></p>
+                        <button class="custom-button" style="padding-left:30px; padding-right:30px" onclick="validate()"> LOGIN </button>
+                        </fieldset>
+                </div>
+                <!-- ==========================================Start of the App==========================================-->
+
+<div id ="main" style= "display:none">
  <h3>Aries Scanner</h3>
 
  <button onclick="scan('true')">ADD </button>
