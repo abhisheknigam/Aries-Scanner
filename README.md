@@ -1,5 +1,5 @@
 # Aries-Scanner
-Scanner for Aries personal assistant
+Scanner for Aries personal assistant 
 
 <h4><b>A personal assistant for your kitchen, which helps you automatically manage the kitchen items(veggies, groceries etc) to be ordered automatically for your family.</b></h4>
 
